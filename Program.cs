@@ -13,7 +13,7 @@ namespace RandomPicker
         static Random random = new Random();
         enum UserChoice
         {
-            Yes, Next, Cancel
+            Yes, Next, Cancel, Previous
         }
 
         static void Main(string[] args)
@@ -22,25 +22,80 @@ namespace RandomPicker
 
             UserChoice choice;
             String fileName;
+
+            // Stop if no files
+            if (!files.Any())
+                return;
+
+            //Create a randomized list of indexes
+            List<int> indexes = new List<int>();
+            for (int i = 0; i < files.Count; i++)
+                indexes.Add(i);
+
+            // Randomize list (Fisher-Yates)
+            int n = indexes.Count;
+            while (n > 1)
+            {
+                n--;
+                int k = random.Next(n + 1);
+                int value = indexes[k];
+                indexes[k] = indexes[n];
+                indexes[n] = value;
+            }
+
+            int picker = 0;
             do
             {
-                // Stop if no files left
-                if (!files.Any())
-                    return;
-
-                // Choose a random file and remove it from the list
-                var index = random.Next(files.Count);
+                // Chooses an index using the randomized list
+                var index = indexes[picker];
                 fileName = files[index];
-                files.RemoveAt(index);
-                Console.WriteLine(String.Format("\nPlay \"{0}\"? [Y]es, [N]ext, [C]ancel", fileName.Split('\\').Last()));
+                if (picker == 0)
+                    Console.WriteLine(generatePromptString(fileName, true, false));
+                else if (picker == indexes.Count - 1)
+                    Console.WriteLine(generatePromptString(fileName, false, true));
+                else
+                    Console.WriteLine(generatePromptString(fileName, true, true));
+
                 // Continue to loop, play or stop
                 choice = readInput();
-            } while (choice == UserChoice.Next);
+                if (choice == UserChoice.Next)
+                {
+                    if (picker == indexes.Count - 1)
+                        continue;
+                    else
+                        picker++;
+                }
+                else if (choice == UserChoice.Previous)
+                {
+                    if (picker == 0)
+                        picker++;
+                    else
+                        picker--;
+                }
+
+
+            } while (choice == UserChoice.Next || choice == UserChoice.Previous);
 
             if (choice == UserChoice.Cancel)
                 return;
             else
                 System.Diagnostics.Process.Start(fileName);
+        }
+
+        private static String generatePromptString(String fileName, bool next, bool previous)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(String.Format("\nPlay \"{0}\"? [Y]es, ", fileName.Split('\\').Last()));
+
+            if (next)
+                sb.Append(" [N]ext,");
+
+            if (previous)
+                sb.Append(" [P]revious,");
+
+            sb.Append(" [C]ancel.");
+
+            return sb.ToString();
         }
 
         static UserChoice readInput()
@@ -53,6 +108,8 @@ namespace RandomPicker
                     return UserChoice.Yes;
                 case 'c':
                     return UserChoice.Cancel;
+                case 'p':
+                    return UserChoice.Previous;
                 default:
                     return UserChoice.Next;
             }
