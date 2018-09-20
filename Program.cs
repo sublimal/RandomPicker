@@ -185,6 +185,7 @@ namespace RandomPicker
 
             // To look more pretty
             Console.WriteLine();
+            Console.WriteLine("Directory: \t " + folderPath);
 
             // Print only values available
             for (int i = 0; i < arrHeaders.Count; i++)
