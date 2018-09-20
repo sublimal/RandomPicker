@@ -1,21 +1,26 @@
-﻿using System;
+﻿using Shell32;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace RandomPicker
 {
     class Program
     {
-        static String[] extensions = { ".mp4", ".mkv", ".avi" };
+        static String[] extensions = { ".mov", ".mp4", ".avi", ".mpeg", ".mpg", ".wmv", ".mkv", ".m4v", ".flv" };
         static Random random = new Random();
         enum UserChoice
         {
-            Yes, Next, Cancel, Previous
+            Cancel = 0,
+            Yes = 1,
+            Next = 2,
+            Previous = 3,
+            Details = 4
         }
 
+        [STAThread]
         static void Main(string[] args)
         {
             var files = getAllMediaFiles(Directory.GetCurrentDirectory());
@@ -72,9 +77,12 @@ namespace RandomPicker
                     else
                         picker--;
                 }
+                else if (choice == UserChoice.Details)
+                {
+                    printDetails(fileName);
+                }
 
-
-            } while (choice == UserChoice.Next || choice == UserChoice.Previous);
+            } while ((int)choice > 1);
 
             if (choice == UserChoice.Cancel)
                 return;
@@ -93,7 +101,7 @@ namespace RandomPicker
             if (previous)
                 sb.Append(" [P]revious,");
 
-            sb.Append(" [C]ancel.");
+            sb.Append(" [C]ancel, [D]etails.");
 
             return sb.ToString();
         }
@@ -110,6 +118,8 @@ namespace RandomPicker
                     return UserChoice.Cancel;
                 case 'p':
                     return UserChoice.Previous;
+                case 'd':
+                    return UserChoice.Details;
                 default:
                     return UserChoice.Next;
             }
@@ -152,6 +162,46 @@ namespace RandomPicker
 
             // Return all files collected
             return files;
+        }
+
+        private static void printDetails(String filePath)
+        {
+            List<string> arrHeaders = new List<string>();
+            var folderPath = Path.GetDirectoryName(filePath);
+
+            Shell shell = new Shell();
+            Folder shellFolder = shell.NameSpace(folderPath);
+            FolderItem shellFile = shellFolder.ParseName(Path.GetFileName(filePath));
+            // Video length id 27
+
+            // Get all possible headers
+            for (int i = 0; i < short.MaxValue; i++)
+            {
+                string header = shellFolder.GetDetailsOf(null, i);
+                if (String.IsNullOrEmpty(header))
+                    break;
+                arrHeaders.Add(header);
+            }
+
+            // To look more pretty
+            Console.WriteLine();
+
+            // Print only values available
+            for (int i = 0; i < arrHeaders.Count; i++)
+            {
+                var header = arrHeaders[i];
+                var value = shellFolder.GetDetailsOf(shellFile, i).Trim();
+                if (!String.IsNullOrWhiteSpace(value))
+                {
+                    System.Diagnostics.Debug.WriteLine($"{i}\t{header}: {value}");
+
+                    if (header.Length > 7)
+                        Console.WriteLine($"{header}:\t {value}");
+                    else
+                        Console.WriteLine($"{header}:\t\t {value}");
+
+                }
+            }
         }
     }
 }
