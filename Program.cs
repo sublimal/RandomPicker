@@ -32,62 +32,56 @@ namespace RandomPicker
             if (!files.Any())
                 return;
 
-            //Create a randomized list of indexes
-            List<int> indexes = new List<int>();
-            for (int i = 0; i < files.Count; i++)
-                indexes.Add(i);
-
             // Randomize list (Fisher-Yates)
-            int n = indexes.Count;
+            int n = files.Count;
             while (n > 1)
             {
                 n--;
                 int k = random.Next(n + 1);
-                int value = indexes[k];
-                indexes[k] = indexes[n];
-                indexes[n] = value;
+                var value = files[k];
+                files[k] = files[n];
+                files[n] = value;
             }
 
             int picker = 0;
             do
             {
-                // Chooses an index using the randomized list
-                var index = indexes[picker];
-                fileName = files[index];
+                // Go through the randomized list
+                fileName = files[picker];
                 if (picker == 0)
                     Console.WriteLine(generatePromptString(fileName, true, false));
-                else if (picker == indexes.Count - 1)
+                else if (picker == files.Count - 1)
                     Console.WriteLine(generatePromptString(fileName, false, true));
                 else
                     Console.WriteLine(generatePromptString(fileName, true, true));
 
                 // Continue to loop, play or stop
                 choice = readInput();
-                if (choice == UserChoice.Next)
+                switch (choice)
                 {
-                    if (picker == indexes.Count - 1)
-                        continue;
-                    else
-                        picker++;
-                }
-                else if (choice == UserChoice.Previous)
-                {
-                    if (picker == 0)
-                        picker++;
-                    else
-                        picker--;
-                }
-                else if (choice == UserChoice.Details)
-                {
-                    printDetails(fileName);
+                    case UserChoice.Next:
+                        if (picker == files.Count - 1)
+                            continue;
+                        else
+                            picker++;
+                        break;
+                    case UserChoice.Previous:
+                        if (picker == 0)
+                            picker++;
+                        else
+                            picker--;
+                        break;
+                    case UserChoice.Details:
+                        printDetails(fileName);
+                        break;
+                    case UserChoice.Cancel:
+                        return;
+                    case UserChoice.Yes:
+                        System.Diagnostics.Process.Start(fileName);
+                        break;
                 }
 
             } while ((int)choice > 1);
-
-            if (choice == UserChoice.Cancel)
-                return;
-            else
-                System.Diagnostics.Process.Start(fileName);
         }
 
         private static String generatePromptString(String fileName, bool next, bool previous)
