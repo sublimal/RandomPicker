@@ -17,7 +17,8 @@ namespace RandomPicker
             Yes = 1,
             Next = 2,
             Previous = 3,
-            Details = 4
+            Details = 4,
+            Find = 5
         }
 
         [STAThread]
@@ -79,6 +80,16 @@ namespace RandomPicker
                     case UserChoice.Yes:
                         System.Diagnostics.Process.Start(fileName);
                         break;
+                    case UserChoice.Find:
+                        Console.WriteLine();
+                        Console.WriteLine("Input search string:");
+                        var search = Console.ReadLine();
+                        var found = files.FirstOrDefault(f => f.ToLower().Contains(search.ToLower()));
+                        if (found == null)
+                            Console.WriteLine("Not Found.");
+                        else
+                            picker = files.IndexOf(found);
+                        break;
                 }
 
             } while ((int)choice > 1);
@@ -95,7 +106,7 @@ namespace RandomPicker
             if (previous)
                 sb.Append(" [P]revious,");
 
-            sb.Append(" [C]ancel, [D]etails.");
+            sb.Append(" [C]ancel, [D]etails, [F]ind.");
 
             return sb.ToString();
         }
@@ -114,6 +125,8 @@ namespace RandomPicker
                     return UserChoice.Previous;
                 case 'd':
                     return UserChoice.Details;
+                case 'f':
+                    return UserChoice.Find;
                 default:
                     return UserChoice.Next;
             }
