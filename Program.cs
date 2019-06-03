@@ -62,13 +62,13 @@ namespace RandomPicker
                 {
                     case UserChoice.Next:
                         if (picker == files.Count - 1)
-                            continue;
+                            continue;// Last one, do nothing
                         else
                             picker++;
                         break;
                     case UserChoice.Previous:
                         if (picker == 0)
-                            picker++;
+                            continue;// First one, do nothing
                         else
                             picker--;
                         break;
