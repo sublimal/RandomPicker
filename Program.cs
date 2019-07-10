@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
 
 namespace RandomPicker
 {
@@ -17,7 +18,8 @@ namespace RandomPicker
             Next = 2,
             Previous = 3,
             Find = 4,
-            Delete = 5
+            Delete = 5,
+            Open = 6
         }
 
         [STAThread]
@@ -78,6 +80,9 @@ namespace RandomPicker
                         break;
                     case UserChoice.Quit:
                         return;
+                    case UserChoice.Open:
+                        Process.Start("explorer.exe", "/select, " + fileName);
+                        break;
                     case UserChoice.Delete:
                         if (fileName == "") break;
                         Console.WriteLine("\nConfirm [y/N]:");
@@ -125,7 +130,7 @@ namespace RandomPicker
             if (previous)
                 sb.Append(" [P]revious,");
 
-            sb.Append(" [F]ind, [Q]uit.");
+            sb.Append(" [F]ind, [O]pen, [Q]uit.");
 
             return sb.ToString();
         }
@@ -146,6 +151,8 @@ namespace RandomPicker
                     return UserChoice.Quit;
                 case 'f':
                     return UserChoice.Find;
+                case 'o':
+                    return UserChoice.Open;
                 default:
                     return UserChoice.Next;
             }
