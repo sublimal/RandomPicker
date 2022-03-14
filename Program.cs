@@ -85,9 +85,9 @@ namespace RandomPicker
                         break;
                     case UserChoice.Delete:
                         if (fileName == "") break;
-                        Console.Write("\nConfirm [yes/N]: ");
-                        var confirm = Console.ReadLine();
-                        if (confirm == "yes")
+                        Console.WriteLine("\nConfirm [y/N]:");
+                        var confirm = Console.ReadKey();
+                        if (confirm.KeyChar == 'y')
                         {
                             File.Delete(fileName);
                             files[picker] = "";
