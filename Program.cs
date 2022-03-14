@@ -25,9 +25,9 @@ namespace RandomPicker
         [STAThread]
         static void Main(string[] args)
         {
-            Console.WriteLine("Scanning...");
+            Console.Write("Scanning...");
             var files = getAllMediaFiles(Directory.GetCurrentDirectory());
-            Console.WriteLine("Done.");
+            Console.WriteLine(" Done.");
 
             
             // Stop if no files
@@ -56,14 +56,15 @@ namespace RandomPicker
                 // Go through the randomized list
                 fileName = files[picker];
                 if (picker == 0)
-                    Console.WriteLine(generatePromptString(fileName, true, false));
+                    Console.Write(generatePromptString(fileName, true, false));
                 else if (picker == files.Count - 1)
-                    Console.WriteLine(generatePromptString(fileName, false, true));
+                    Console.Write(generatePromptString(fileName, false, true));
                 else
-                    Console.WriteLine(generatePromptString(fileName, true, true));
+                    Console.Write(generatePromptString(fileName, true, true));
 
                 // Continue to loop, play or stop
                 choice = readInput();
+                Console.WriteLine();
                 switch (choice)
                 {
                     case UserChoice.Next:
@@ -85,9 +86,10 @@ namespace RandomPicker
                         break;
                     case UserChoice.Delete:
                         if (fileName == "") break;
-                        Console.WriteLine("\nConfirm [y/N]:");
+                        Console.Write("Confirm [y/N]: ");
                         var confirm = Console.ReadKey();
-                        if (confirm.KeyChar == 'y')
+                        Console.WriteLine();
+                        if (confirm.KeyChar == 'Y')
                         {
                             File.Delete(fileName);
                             files[picker] = "";
@@ -102,7 +104,7 @@ namespace RandomPicker
                         System.Diagnostics.Process.Start(fileName);
                         break;
                     case UserChoice.Find:
-                        Console.WriteLine("\nInput search string:");
+                        Console.Write("\nInput search string:");
                         var search = Console.ReadLine();
                         var found = files.FirstOrDefault(f => f.ToLower().Contains(search.ToLower()));
                         if (found == null)
@@ -130,7 +132,7 @@ namespace RandomPicker
             if (previous)
                 sb.Append(" [P]revious,");
 
-            sb.Append(" [F]ind, [O]pen, [Q]uit.");
+            sb.Append(" [F]ind, [O]pen, [Q]uit: ");
 
             return sb.ToString();
         }
