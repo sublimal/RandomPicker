@@ -81,7 +81,7 @@ namespace RandomPicker
                     case UserChoice.Quit:
                         return;
                     case UserChoice.Open:
-                        Process.Start("explorer.exe", "/select, " + fileName);
+                        Process.Start("explorer.exe", "/select, \"" + fileName + "\"");
                         break;
                     case UserChoice.Delete:
                         if (fileName == "") break;
